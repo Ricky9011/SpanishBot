@@ -1,4 +1,4 @@
 python-telegram-bot==20.3
 apscheduler==3.10.1
-sqlite3
+psycopg2-binary==2.9.10
 python-dotenv==1.0.0

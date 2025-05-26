@@ -1,0 +1,36 @@
+
+services:
+  postgres:
+    image: postgres:17
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    build:
+       context: .
+       args:
+         - http_proxy
+         - https_proxy
+    dns: 8.8.8.8
+    image: spanishdailybot
+    env_file: .env
+    depends_on:
+      - postgres
+    restart: unless-stopped  # Auto-reinicio ante fallos
+    command: sh -c "while ! nc -z postgres 5432; do sleep 2; done && python spanishdailybot.py"
+volumes:
+  postgres_data:

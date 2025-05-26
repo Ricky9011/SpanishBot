@@ -1,0 +1,67 @@
+--progress is a global compose flag, better use `docker compose --progress xx build ...
+time="2025-05-23T17:03:43+03:00" level=warning msg="/home/ricky/spanish-bot/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+#0 building with "default" instance using docker driver
+
+#1 [bot internal] load build definition from Dockerfile
+#1 transferring dockerfile: 373B done
+#1 DONE 0.0s
+
+#2 [bot internal] load metadata for docker.io/library/python:3.10-slim
+#2 DONE 2.7s
+
+#3 [bot internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [bot 1/6] FROM docker.io/library/python:3.10-slim@sha256:49454d2bf78a48f217eb25ecbcb4b5face313fea6a6e82706465a6990303ada2
+#4 DONE 0.0s
+
+#5 [bot 2/6] WORKDIR /app
+#5 CACHED
+
+#6 [bot internal] load build context
+#6 transferring context: 688.84kB 0.1s done
+#6 DONE 0.2s
+
+#7 [bot 3/6] RUN apt-get update && apt-get install -y     gcc     python3-dev     libpq-dev     && rm -rf /var/lib/apt/lists/*
+#7 18.57 Ign:1 http://deb.debian.org/debian bookworm InRelease
+#7 37.00 Ign:2 http://deb.debian.org/debian bookworm-updates InRelease
+#7 55.43 Ign:3 http://deb.debian.org/debian-security bookworm-security InRelease
+#7 73.87 Ign:1 http://deb.debian.org/debian bookworm InRelease
+#7 92.30 Ign:2 http://deb.debian.org/debian bookworm-updates InRelease
+#7 110.7 Ign:3 http://deb.debian.org/debian-security bookworm-security InRelease
+#7 129.2 Ign:1 http://deb.debian.org/debian bookworm InRelease
+#7 147.6 Ign:2 http://deb.debian.org/debian bookworm-updates InRelease
+#7 166.0 Ign:3 http://deb.debian.org/debian-security bookworm-security InRelease
+#7 184.5 Err:1 http://deb.debian.org/debian bookworm InRelease
+#7 184.5   Temporary failure resolving 'deb.debian.org'
+#7 202.9 Err:2 http://deb.debian.org/debian bookworm-updates InRelease
+#7 202.9   Temporary failure resolving 'deb.debian.org'
+#7 221.3 Err:3 http://deb.debian.org/debian-security bookworm-security InRelease
+#7 221.3   Temporary failure resolving 'deb.debian.org'
+#7 221.3 Reading package lists...
+#7 221.3 W: Failed to fetch http://deb.debian.org/debian/dists/bookworm/InRelease  Temporary failure resolving 'deb.debian.org'
+#7 221.3 W: Failed to fetch http://deb.debian.org/debian/dists/bookworm-updates/InRelease  Temporary failure resolving 'deb.debian.org'
+#7 221.3 W: Failed to fetch http://deb.debian.org/debian-security/dists/bookworm-security/InRelease  Temporary failure resolving 'deb.debian.org'
+#7 221.3 W: Some index files failed to download. They have been ignored, or old ones used instead.
+#7 221.3 Reading package lists...
+#7 221.3 Building dependency tree...
+#7 221.3 Reading state information...
+#7 221.3 E: Unable to locate package gcc
+#7 221.3 E: Unable to locate package python3-dev
+#7 221.3 E: Unable to locate package libpq-dev
+#7 ERROR: process "/bin/sh -c apt-get update && apt-get install -y     gcc     python3-dev     libpq-dev     && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+------
+ > [bot 3/6] RUN apt-get update && apt-get install -y     gcc     python3-dev     libpq-dev     && rm -rf /var/lib/apt/lists/*:
+221.3 W: Failed to fetch http://deb.debian.org/debian/dists/bookworm/InRelease  Temporary failure resolving 'deb.debian.org'
+221.3 W: Failed to fetch http://deb.debian.org/debian/dists/bookworm-updates/InRelease  Temporary failure resolving 'deb.debian.org'
+221.3 W: Failed to fetch http://deb.debian.org/debian-security/dists/bookworm-security/InRelease  Temporary failure resolving 'deb.debian.org'
+221.3 W: Some index files failed to download. They have been ignored, or old ones used instead.
+221.3 Reading package lists...
+221.3 Building dependency tree...
+221.3 Reading state information...
+221.3 E: Unable to locate package gcc
+221.3 E: Unable to locate package python3-dev
+221.3 E: Unable to locate package libpq-dev
+------
+failed to solve: process "/bin/sh -c apt-get update && apt-get install -y     gcc     python3-dev     libpq-dev     && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
