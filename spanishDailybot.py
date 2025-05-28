@@ -13,6 +13,7 @@ from telegram.ext import (
     CallbackQueryHandler,
 )
 import os
+import json
 import psycopg2
 from dotenv import load_dotenv
 
@@ -23,6 +24,7 @@ from datetime import time, datetime, timezone
 import pytz
 
 TOKEN = os.getenv("TOKEN")
+
 
 # Conexión PostgreSQL
 conn = psycopg2.connect(
@@ -97,30 +99,81 @@ async def ayuda(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(help_text)
 
 
+with open("ejercicios.json", "r", encoding="utf-8") as f:
+    EJERCICIOS = json.load(f)
+
+
 async def ejercicio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         user_id = update.effective_user.id
         cursor.execute("SELECT level FROM users WHERE user_id = %s", (user_id,))
-        level = cursor.fetchone()[0]
+        nivel = cursor.fetchone()[0].lower()
 
-        ejercicios = {
-            "principiante": ["Traduce: 'Good morning'", "Conjuga 'comer' en presente"],
-            "intermedio": [
-                "Usa el subjuntivo en: 'Es importante que...'",
-                "Diferencias ser/estar",
-            ],
-            "avanzado": ["Expresiones idiomáticas mexicanas", "Jerga técnica en TI"],
-        }
+        categorias = list(EJERCICIOS[nivel].keys())
+        categoria = random.choice(categorias)
+        ejercicio = random.choice(EJERCICIOS[nivel][categoria])
 
-        ejercicio = random.choice(ejercicios[level])
-        cursor.execute(
-            "UPDATE users SET exercises = exercises + 1 WHERE user_id = %s", (user_id,)
+        context.user_data["respuesta_correcta"] = ejercicio["opciones"][
+            ejercicio["respuesta"]
+        ]
+
+        mensaje = (
+            f"📚 *Ejercicio de {categoria} ({nivel})*:\n{ejercicio['pregunta']}\n\n"
         )
-        conn.commit()
-        await update.message.reply_text(f"📝 **Ejercicio ({level}):**\n{ejercicio}")
+        for idx, opcion in enumerate(ejercicio["opciones"]):
+            mensaje += f"{idx + 1}. {opcion}\n"
+
+        context.user_data["respuesta_correcta"] = ejercicio["respuesta"]
+        context.user_data["opciones"] = ejercicio["opciones"]
+
+        await update.message.reply_text(mensaje, parse_mode="Markdown")
 
     except Exception as e:
         print(f"Error en ejercicio: {e}")
+        await update.message.reply_text(
+            "⚠️ Ocurrió un error. Intenta de nuevo con /ejercicio"
+        )
+        # Rollback en caso de error de DB
+        conn.rollback()
+
+
+async def check_respuesta(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        respuesta_usuario = update.message.text.strip()
+        correcta_idx = context.user_data.get("respuesta_correcta", -1)
+        opciones = context.user_data.get("opciones", [])
+
+        # Convertir respuesta a número si es posible
+        if respuesta_usuario.isdigit():
+            respuesta_idx = int(respuesta_usuario) - 1
+        else:
+            respuesta_idx = next(
+                (
+                    i
+                    for i, op in enumerate(opciones)
+                    if op.lower() == respuesta_usuario.lower()
+                ),
+                -1,
+            )
+
+        if respuesta_idx == correcta_idx:
+            mensaje = "✅ ¡Correcto! +1 punto"
+            # Actualizar base de datos
+            cursor.execute(
+                "UPDATE users SET exercises = exercises + 1 WHERE user_id = %s",
+                (update.effective_user.id,),
+            )
+            conn.commit()
+        else:
+            mensaje = (
+                f"❌ Incorrecto. La respuesta correcta era: {opciones[correcta_idx]}"
+            )
+
+        await update.message.reply_text(mensaje)
+
+    except Exception as e:
+        print(f"Error en check_respuesta: {e}")
+        await update.message.reply_text("⚠️ Error al verificar la respuesta")
 
 
 async def progreso(update: Update, context: ContextTypes.DEFAULT_TYPE):
