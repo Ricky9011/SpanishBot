@@ -1,14 +1,11 @@
-FROM python:3.10-bullseye
+FROM python:3.10-slim
 
 WORKDIR /app
 
-# Configurar repositorios correctamente
-RUN sed -i 's/main/main contrib non-free/' /etc/apt/sources.list && \
-    echo "deb http://security.debian.org/debian-security/ bullseye-security main" >> /etc/apt/sources.list && \
-    echo "deb http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get update -qq && \
+# Configurar DNS y repositorios
+RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
-        build-essential \
+        gcc \
         python3-dev \
         libpq-dev \
         netcat \
